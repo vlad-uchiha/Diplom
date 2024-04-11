@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузка аудиофайла</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Выберите аудиофайл для загрузки(в формате mp3 или wav):</h2>
+    <label for="audioFileInput" class="custom-file-upload">
+        <input type="file" id="audioFileInput" accept=".mp3, .wav">
+        Выбрать файл
+    </label>
+    <!-- Название файла будет отображаться здесь -->
+    <span id="fileName"></span>
+    <button onclick="uploadAudio()">Загрузить</button>
+    <button onclick="runAbraScript()">Запустить анализ</button>
+
+    <script>
+        document.getElementById('audioFileInput').addEventListener('change', function() {
+            var fileName = this.files[0].name;
+            document.getElementById('fileName').textContent = fileName;
+        });
+        
+        function uploadAudio() {
+            const fileInput = document.getElementById('audioFileInput');
+            const file = fileInput.files[0];
+            if (file) {
+                const allowedExtensions = ['.mp3', '.wav'];
+                const fileExtension = file.name.split('.').pop();
+                if (allowedExtensions.includes('.' + fileExtension.toLowerCase())) {
+                    const formData = new FormData();
+                    formData.append('audioFile', file);
+                    
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert('Аудиофайл успешно загружен!');
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при загрузке аудиофайла:', error);
+                        alert('Произошла ошибка при загрузке аудиофайла: ' + error.message);
+                    });
+                } else {
+                    alert('Неподходящее расширение файла, выберите файл с расширением mp3 или wav.');
+                }
+            } else {
+                alert('Выберите файл для загрузки.');
+            }
+        }
+
+        function runAbraScript() {
+            fetch('/run_abra_script', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Результат: ' + data.message);
+            })
+            .catch(error => {
+                console.error('Произошла ошибка:', error);
+                alert('Произошла ошибка при запуске скрипта.');
+            });
+        }
+    </script>
+</body>
+</html>
