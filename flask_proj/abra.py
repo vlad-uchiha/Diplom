@@ -1,6 +1,8 @@
 import os
 import librosa
+import numpy as np
 import matplotlib.pyplot as plt
+from flask import jsonify
 from typing import List
 
 
@@ -40,44 +42,71 @@ def calculate_average_tempos(frames: List[float], sr: int, audio_duration: float
 
     return average_tempos
 
-def draw_graph(avg_tempos: List[float]) -> None:
-    """Строит график усреднения темпа по времени.
 
+def draw_graphic(tempos: List[float], times) -> None:
+    """Отрисовка графика для полученного аудиофайла и сохранение его как изображения.
+    
     Args:
-        avg_tempos: Список усредненных темпов.
-
+        tempos: Список темпов.
+        times: Временные метки.
+    
     Returns:
-        None
+        График темпов.
     """
-
-    plt.plot(average_tempos, label='Усредненный темп (BPM)')
-    plt.xlabel('Время (в секундах)')
-    plt.ylabel('Темп (в BPM)')
-    plt.title('Усредненный темп по времени')
+    plt.figure(figsize=(10, 4))
+    plt.plot(times, tempos, label='Темп')
+    plt.xlabel('Время (с)')
+    plt.ylabel('Темп')
+    plt.title('График изменения темпа с окном в 1 секунду')
     plt.legend()
     plt.grid(True)
     plt.show()
+    # Сохраняем изображение
+    # image_path = 'static/graph.png'  # Путь для сохранения изображения
+    # plt.savefig(image_path)
+    # plt.close()  # Закрываем текущее изображение
+    #return image_path
 
-# Пример использования
-audio_file = 'flask_proj/uploads/JEEMBO- TVETH-SOLDIER OF PAIN-kissvk.com.mp3'
+def run_abra_script(filename: str) -> dict:
+    """Запускает скрипт Abra для аудиофайла с заданным именем и возвращает результаты выполнения.
+    
+    Args:
+        filename: Имя загруженного аудиофайла.
+    
+    Returns:
+        Результат выполнения скрипта Abra.
+    """
+    try:
+        frame_length = 2048
+        hop_length = 512
 
-frame_length = 2048
-hop_length = 512
+        y, sr = librosa.load(f'flask_proj/uploads/{filename}')
+        frames = librosa.util.frame(y, frame_length=frame_length, hop_length=hop_length).T
 
-y, sr = librosa.load(audio_file)
-frames = librosa.util.frame(y, frame_length=frame_length, hop_length=hop_length).T
+        audio_duration = len(y) / sr
 
-audio_duration = len(y) / sr
+        # Вычисляем усредненные темпы по блокам
+        average_tempos = calculate_average_tempos(frames, sr, audio_duration, 1)
 
-# Вычисляем усредненные темпы по блокам
-average_tempos = calculate_average_tempos(frames, sr, audio_duration, 1)
+        time = np.linspace(0, audio_duration, len(average_tempos))
 
-for i, avg_tempo in enumerate(average_tempos):
-    print(f"Block {i}: Tempo = {avg_tempo} ")
+        # Рисуем и сохраняем график
+        # image_path = draw_graphic(average_tempos, time)
 
-# Выводим среднее значение темпа и длительность аудиофайла
-print('Сумма темпов = ', sum(average_tempos))
-print('Среднее значение темпа:', sum(average_tempos) / len(average_tempos), 'BPM')
-print('Длительность аудиофайла:', audio_duration, 'секунд')
+        return {
+            # 'image_path': image_path,
+            'average_tempos': average_tempos,
+            'total_tempo': int(sum(average_tempos)),
+            'average_tempo': int(sum(average_tempos) / len(average_tempos)),
+            'audio_duration': int(audio_duration)
+        }
 
-draw_graph(average_tempos)
+    except Exception as e:
+        return {'error': str(e)}
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1:
+        filename = sys.argv[1]
+        result = run_abra_script(filename)
+        print(result)
