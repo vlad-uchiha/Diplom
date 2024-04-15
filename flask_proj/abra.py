@@ -52,7 +52,7 @@ def draw_graphic(tempos: List[float], file: str, times) -> None:
         times: Временные метки.
     
     Returns:
-        График темпов.
+        Путь к картинке графика.
     """
     plt.figure(figsize=(10, 4))
     plt.plot(times, tempos, label='Темп')
