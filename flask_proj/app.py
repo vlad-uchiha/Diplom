@@ -4,7 +4,7 @@ from typing import Dict
 import matplotlib
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 matplotlib.use('Agg')
 
 UPLOAD_FOLDER = 'uploads'
@@ -86,7 +86,7 @@ def run_abra_script_route() -> Dict:
                 'message': 'Скрипт Abra успешно выполнен',
                 'output':
                     {
-                        # 'image_path': result['image_path'],  # Передаем путь к изображению
+                        'image_path': result['image_path'],  # Передаем путь к изображению
                         'average_tempos': result['average_tempos'],
                         'total_tempo': result['total_tempo'],
                         'average_tempo': result['average_tempo'],

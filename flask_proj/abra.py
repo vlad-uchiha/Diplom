@@ -44,7 +44,9 @@ def calculate_average_tempos(frames: List[float], sr: int, audio_duration: float
     return list(map(int, average_tempos))
 
 
-def draw_graphic(tempos: List[float], file: str, times) -> None:
+import os
+
+def draw_graphic(tempos: List[float], file: str, times) -> str:
     """Отрисовка графика для полученного аудиофайла и сохранение его как изображения.
     
     Args:
@@ -63,11 +65,15 @@ def draw_graphic(tempos: List[float], file: str, times) -> None:
     plt.grid(True)
     # plt.show()
 
+    # if not os.path.exists('static'):
+    #     os.makedirs('static')
+
     # Сохраняем изображение
-    path = f'flask_proj/static/{file}.png'  # Путь для сохранения изображения
+    path = os.path.join('static/', f'{file.replace(" ","")}.png')  # Путь для сохранения изображения
     plt.savefig(path)
     plt.close()  # Закрываем текущее изображение
     return path
+
 
 def run_abra_script(filename: str) -> dict:
     """Запускает скрипт Abra для аудиофайла с заданным именем и возвращает результаты выполнения.
@@ -95,7 +101,7 @@ def run_abra_script(filename: str) -> dict:
         image_path = draw_graphic(average_tempos, filename, time)
 
         return {
-            # 'image_path': image_path,
+            'image_path': image_path,
             'average_tempos': average_tempos,
             'total_tempo': int(sum(average_tempos)),
             'average_tempo': int(sum(average_tempos) / len(average_tempos)),

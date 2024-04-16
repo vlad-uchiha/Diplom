@@ -36,6 +36,7 @@
             </tr>
         </tbody>
     </table>
+    <img id="graph_image" src="/static/empty_image.png" alt="График">
 
     <script>
         document.getElementById('audioFileInput').addEventListener('change', function() {
@@ -103,7 +104,8 @@
                 if (data.error) {
                     console.error('Произошла ошибка:', data.error);
                     alert('Произошла ошибка при запуске скрипта.');
-                } else if (data.output) {
+                } else if (data.output) {  
+                    document.getElementById("graph_image").src = data.output.image_path;
                     // document.getElementById("average_tempos").textContent = data.output.average_tempos;
                     document.getElementById("average_tempo").textContent = data.output.average_tempo;
                     document.getElementById("audio_duration").textContent = data.output.audio_duration;
