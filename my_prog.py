@@ -9,7 +9,7 @@ def calculate_tempo(audio_file, block_size):
     block_tempo = []
     for i in range(0, len(y), block_size):
         block = y[i:i + block_size]
-        tempo = librosa.beat.tempo(block, sr=sr)[0]
+        tempo = librosa.beat.tempo(block, sr=sr)
         block_tempo.append(tempo)
 
     # Усреднение темпа по блокам
